@@ -68,6 +68,9 @@ public class App extends Application {
     TextArea wkt = new TextArea();
     root.add(wkt, 0, 2, 2, 5);
 
+    var label3 = new Label("Draws in sequence BLUE, RED, YELLOW, GREEN, CYAN, MAGENTA");
+    root.add(label3, 0, 8, 2, 1);
+
     Button add = new Button("Add");
     add.setOnAction(e -> add(e, wkt.getParagraphs()));
     root.add(add, 0, 7, 1, 1);
