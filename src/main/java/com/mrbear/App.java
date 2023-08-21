@@ -14,10 +14,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.MultiPolygon;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.io.ParseException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,13 +34,15 @@ public class App extends Application {
   public static final float CANVAS_HEIGHT = 900.0f;
   public static final float CANVAS_MARGINX = 11.0f;
   public static final float CANVAS_MARGINY = 11.0f;
+  public static final int POINT_DIAMETER = 6;
+  public static final int HALF_POINT_DIAMETER = POINT_DIAMETER / 3;
 
   private GraphicsContext gc;
 
-  private float minx = 111111100;
-  private float miny = 111111100;
-  private float maxx = 0;
-  private float maxy = 0;
+  private double minx = 111111100;
+  private double miny = 111111100;
+  private double maxx = 0;
+  private double maxy = 0;
 
   @Override
   public void start(Stage primaryStage) {
@@ -114,34 +120,36 @@ public class App extends Application {
 
   private void computeMaxMin(List<Geometry> polygons) {
     for (Geometry polygon : polygons) {
-      List<Coordinate> coordinates  = polygon instanceof Polygon ? ((Polygon) polygon).coordinates() : Collections.emptyList();
+      List<Coordinate> coordinates = Arrays.asList(polygon.getCoordinates());
       for (Coordinate coordinate : coordinates) {
-        if (minx > coordinate.x()) {
-          minx = coordinate.x();
+        if (minx > coordinate.x) {
+          minx = coordinate.x;
         }
-        if (miny > coordinate.y()) {
-          miny = coordinate.y();
+        if (miny > coordinate.y) {
+          miny = coordinate.y;
         }
-        if (maxx < coordinate.x()) {
-          maxx = coordinate.x();
+        if (maxx < coordinate.x) {
+          maxx = coordinate.x;
         }
-        if (maxy < coordinate.y()) {
-          maxy = coordinate.y();
+        if (maxy < coordinate.y) {
+          maxy = coordinate.y;
         }
       }
 
     }
-    //    minx -= 100;
-    //    miny -= 100;
-    //    maxx += 100;
-    //    maxy += 100;
   }
 
   private void draw(Geometry geometry, Color color) {
+    if (geometry instanceof MultiPolygon) {
+      var multiPolygon = (MultiPolygon) geometry;
+      for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+        draw(multiPolygon.getGeometryN(i), color);
+      }
+    }
     if (geometry instanceof Polygon) {
       var polygon = (Polygon) geometry;
       Coordinate lastCoordinate = null;
-      for (Coordinate coordinate : polygon.coordinates()) {
+      for (Coordinate coordinate : polygon.getCoordinates()) {
         if (lastCoordinate != null) {
           gc.setStroke(color);
           gc.setFill(Color.RED);
@@ -150,18 +158,36 @@ public class App extends Application {
           // minx      x          maxx
           // 101096    101100     421000
 
-          var x1 = ((lastCoordinate.x() - minx) / (maxx - minx)) * CANVAS_WIDTH;
-          var y1 = ((lastCoordinate.y() - miny) / (maxy - miny)) * CANVAS_HEIGHT;
-          var x2 = ((coordinate.x() - minx) / (maxx - minx)) * CANVAS_WIDTH;
-          var y2 = ((coordinate.y() - miny) / (maxy - miny)) * CANVAS_HEIGHT;
+          var x1 = ((lastCoordinate.x - minx) / (maxx - minx)) * CANVAS_WIDTH;
+          var y1 = ((lastCoordinate.y - miny) / (maxy - miny)) * CANVAS_HEIGHT;
+          var x2 = ((coordinate.x - minx) / (maxx - minx)) * CANVAS_WIDTH;
+          var y2 = ((coordinate.y - miny) / (maxy - miny)) * CANVAS_HEIGHT;
           System.out.println(x1 + "," + y1 + "->" + x2 + "," + y2);
           gc.strokeLine(x1 + CANVAS_MARGINX, y1 + CANVAS_MARGINY, x2 + CANVAS_MARGINX, y2 + CANVAS_MARGINY);
           // set fill for oval
           gc.setFill(Color.BLACK);
-          gc.fillOval(x2 + CANVAS_MARGINX - 3, y2 + CANVAS_MARGINY - 3, 6, 6);
+          gc.fillOval(x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER, y2 + CANVAS_MARGINY - HALF_POINT_DIAMETER,
+              POINT_DIAMETER, POINT_DIAMETER);
         }
         lastCoordinate = coordinate;
       }
+    }
+    if (geometry instanceof Point) {
+      var point = (Point) geometry;
+      Coordinate coordinate = point.getCoordinate();
+      gc.setStroke(color);
+      gc.setFill(Color.RED);
+      // 0 .. canvas_width
+      // 0 .. 200
+      // minx      x          maxx
+      // 101096    101100     421000
+
+      var x = ((coordinate.x - minx) / (maxx - minx)) * CANVAS_WIDTH;
+      var y = ((coordinate.y - miny) / (maxy - miny)) * CANVAS_HEIGHT;
+      // set fill for oval
+      gc.setFill(Color.BLACK);
+      gc.fillOval(x + CANVAS_MARGINX - HALF_POINT_DIAMETER, y + CANVAS_MARGINY - HALF_POINT_DIAMETER, POINT_DIAMETER,
+          POINT_DIAMETER);
     }
   }
 
@@ -170,25 +196,14 @@ public class App extends Application {
       System.out.println("COMMENTS detected");
       return null;
     }
-    if (x.startsWith("POLYGON ((")) {
-      System.out.println("POLYGON detected");
-      var cleaned = x.replace("POLYGON", "").replace("(", "").replace(")", "").replace(", ", ",").split(",");
-      System.out.println(cleaned);
-      return getPolygon(cleaned);
+    try {
+      return GeometryParser.createGeometryFromWKT(x);
     }
-    return null;
-  }
+    catch (ParseException e) {
+      e.printStackTrace();
+      return null;
+    }
 
-  private static Polygon getPolygon(String[] cleaned) {
-    List<Coordinate> coordinates = new ArrayList<>();
-    Arrays.stream(cleaned).forEach(coor -> {
-      System.out.println(coor.trim());
-      var sep = coor.trim().split(" ");
-      if (sep != null && sep[0] != null && sep[1] != null) {
-        coordinates.add(new Coordinate(Float.parseFloat(sep[0]), Float.parseFloat(sep[1])));
-      }
-    });
-    return new Polygon(coordinates);
   }
 
   public static void main(String[] args) {
