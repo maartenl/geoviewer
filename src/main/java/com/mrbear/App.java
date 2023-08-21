@@ -12,6 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -45,6 +46,7 @@ public class App extends Application {
   private double miny = 111111100;
   private double maxx = 0;
   private double maxy = 0;
+  private boolean toggleCoordinates = true;
 
   @Override
   public void start(Stage primaryStage) {
@@ -68,9 +70,6 @@ public class App extends Application {
     TextArea wkt = new TextArea();
     root.add(wkt, 0, 2, 2, 5);
 
-    var label3 = new Label("Draws in sequence BLUE, RED, YELLOW, GREEN, CYAN, MAGENTA");
-    root.add(label3, 0, 8, 2, 1);
-
     Button add = new Button("Add");
     add.setOnAction(e -> add(e, wkt.getParagraphs()));
     root.add(add, 0, 7, 1, 1);
@@ -79,11 +78,22 @@ public class App extends Application {
     clear.setOnAction(this::clear);
     root.add(clear, 1, 7, 1, 1);
 
+    ToggleButton showCoordinates = new ToggleButton("Show coordinates");
+    showCoordinates.setOnAction(this::toggleCoordinates);
+    root.add(showCoordinates, 0, 8, 1, 1);
+
+    var label3 = new Label("Draws in sequence BLUE, RED, YELLOW, GREEN, CYAN, MAGENTA");
+    root.add(label3, 0, 9, 2, 1);
+
     root.add(getCanvas(), 2, 0, 20, 20);
 
     var scene = new Scene(root, 640, 480);
     primaryStage.setScene(scene);
     primaryStage.show();
+  }
+
+  private void toggleCoordinates(ActionEvent actionEvent) {
+    toggleCoordinates = !toggleCoordinates;
   }
 
   private Canvas getCanvas() {
@@ -170,14 +180,18 @@ public class App extends Application {
           var x2 = ((coordinate.x - minx) / (maxx - minx)) * CANVAS_WIDTH;
           var y2 = ((coordinate.y - miny) / (maxy - miny)) * CANVAS_HEIGHT;
           System.out.println(x1 + "," + y1 + "->" + x2 + "," + y2);
-          gc.strokeLine(x1 + CANVAS_MARGINX, y1 + CANVAS_MARGINY, x2 + CANVAS_MARGINX, y2 + CANVAS_MARGINY);
+          gc.strokeLine(x1 + CANVAS_MARGINX, CANVAS_HEIGHT - (y1),
+              x2 + CANVAS_MARGINX, CANVAS_HEIGHT - (y2));
           // set fill for oval
           gc.setFill(Color.BLACK);
-          gc.fillOval(x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER, y2 + CANVAS_MARGINY - HALF_POINT_DIAMETER,
+          gc.fillOval(x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
+              CANVAS_HEIGHT - (y2 - HALF_POINT_DIAMETER),
               POINT_DIAMETER, POINT_DIAMETER);
-          gc.fillText(coordinate.x + ", " + coordinate.y,
-              x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
-              y2 + CANVAS_MARGINY - HALF_POINT_DIAMETER + 6);
+          if (toggleCoordinates) {
+            gc.fillText(coordinate.x + ", " + coordinate.y,
+                x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
+                CANVAS_HEIGHT - (y2 - HALF_POINT_DIAMETER + 6));
+          }
         }
         lastCoordinate = coordinate;
       }
@@ -196,11 +210,12 @@ public class App extends Application {
       var y = ((coordinate.y - miny) / (maxy - miny)) * CANVAS_HEIGHT;
       // set fill for oval
       gc.setFill(Color.BLACK);
-      gc.fillOval(x + CANVAS_MARGINX - HALF_POINT_DIAMETER, y + CANVAS_MARGINY - HALF_POINT_DIAMETER, POINT_DIAMETER,
+      gc.fillOval(x + CANVAS_MARGINX - HALF_POINT_DIAMETER, CANVAS_HEIGHT - (y - HALF_POINT_DIAMETER),
+          POINT_DIAMETER,
           POINT_DIAMETER);
       gc.fillText(coordinate.x + ", " + coordinate.y,
           x + CANVAS_MARGINX - HALF_POINT_DIAMETER,
-          y + CANVAS_MARGINY - HALF_POINT_DIAMETER + 6);
+          CANVAS_HEIGHT - (y - HALF_POINT_DIAMETER + 6));
     }
   }
 
