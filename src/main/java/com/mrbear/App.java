@@ -105,7 +105,7 @@ public class App extends Application {
         .filter(Objects::nonNull)
         .toList();
     computeMaxMin(polygons);
-    List<Color> list = Arrays.asList(Color.BLUE, Color.RED, Color.YELLOW, Color.GREEN);
+    List<Color> list = Arrays.asList(Color.BLUE, Color.RED, Color.YELLOW, Color.GREEN, Color.CYAN, Color.MAGENTA);
     var index = 0;
     for (Geometry polygon : polygons) {
       draw(polygon, list.get(index));
