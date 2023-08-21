@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -13,6 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -32,8 +34,8 @@ public class App extends Application {
 
   public static final float CANVAS_WIDTH = 900.0f;
   public static final float CANVAS_HEIGHT = 900.0f;
-  public static final float CANVAS_MARGINX = 11.0f;
-  public static final float CANVAS_MARGINY = 11.0f;
+  public static final float CANVAS_MARGINX = 71.0f;
+  public static final float CANVAS_MARGINY = 71.0f;
   public static final int POINT_DIAMETER = 6;
   public static final int HALF_POINT_DIAMETER = POINT_DIAMETER / 3;
 
@@ -85,6 +87,8 @@ public class App extends Application {
     Canvas canvas = new Canvas(CANVAS_WIDTH + CANVAS_MARGINX * 2, CANVAS_HEIGHT + CANVAS_MARGINY * 2);
     // graphics context
     gc = canvas.getGraphicsContext2D();
+    gc.setTextAlign(TextAlignment.CENTER);
+    gc.setTextBaseline(VPos.TOP);
 
     return canvas;
   }
@@ -168,6 +172,9 @@ public class App extends Application {
           gc.setFill(Color.BLACK);
           gc.fillOval(x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER, y2 + CANVAS_MARGINY - HALF_POINT_DIAMETER,
               POINT_DIAMETER, POINT_DIAMETER);
+          gc.fillText(coordinate.x + ", " + coordinate.y,
+              x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
+              y2 + CANVAS_MARGINY - HALF_POINT_DIAMETER + 6);
         }
         lastCoordinate = coordinate;
       }
@@ -188,6 +195,9 @@ public class App extends Application {
       gc.setFill(Color.BLACK);
       gc.fillOval(x + CANVAS_MARGINX - HALF_POINT_DIAMETER, y + CANVAS_MARGINY - HALF_POINT_DIAMETER, POINT_DIAMETER,
           POINT_DIAMETER);
+      gc.fillText(coordinate.x + ", " + coordinate.y,
+          x + CANVAS_MARGINX - HALF_POINT_DIAMETER,
+          y + CANVAS_MARGINY - HALF_POINT_DIAMETER + 6);
     }
   }
 
