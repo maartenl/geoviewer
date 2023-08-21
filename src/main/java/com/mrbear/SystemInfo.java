@@ -1,4 +1,4 @@
-package org.example;
+package com.mrbear;
 
 public class SystemInfo {
 
