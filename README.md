@@ -5,4 +5,5 @@ Currently only supports:
 - POLYGON
 - MULTIPOLYGON
 - POINT
+- LINEARRING
 

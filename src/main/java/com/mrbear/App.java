@@ -19,6 +19,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LinearRing;
 import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -169,8 +170,15 @@ public class App extends Application {
     }
     if (geometry instanceof Polygon) {
       var polygon = (Polygon) geometry;
+      draw(polygon.getExteriorRing(), color);
+      for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
+        draw(polygon.getInteriorRingN(i), color);
+      }
+    }
+    if (geometry instanceof LinearRing) {
+      var linearRing = (LinearRing) geometry;
       Coordinate lastCoordinate = null;
-      for (Coordinate coordinate : polygon.getCoordinates()) {
+      for (Coordinate coordinate : linearRing.getCoordinates()) {
         if (lastCoordinate != null) {
           gc.setStroke(color);
           gc.setFill(Color.RED);
