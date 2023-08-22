@@ -108,6 +108,10 @@ public class App extends Application {
 
   private void clear(ActionEvent e) {
     gc.clearRect(0, 0, CANVAS_WIDTH + CANVAS_MARGINX * 2, CANVAS_HEIGHT + CANVAS_MARGINY * 2);
+    minx = 111111100;
+    miny = 111111100;
+    maxx = 0;
+    maxy = 0;
   }
 
   private void add(ActionEvent e, ObservableList<CharSequence> content) {
