@@ -80,6 +80,7 @@ public class App extends Application {
     root.add(clear, 1, 7, 1, 1);
 
     ToggleButton showCoordinates = new ToggleButton("Show coordinates");
+    showCoordinates.setSelected(toggleCoordinates);
     showCoordinates.setOnAction(this::toggleCoordinates);
     root.add(showCoordinates, 0, 8, 1, 1);
 
