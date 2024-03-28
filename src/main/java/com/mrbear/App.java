@@ -48,6 +48,7 @@ public class App extends Application {
   private double maxx = 0;
   private double maxy = 0;
   private boolean toggleCoordinates = true;
+  private boolean toggleDots = true;
 
   @Override
   public void start(Stage primaryStage) {
@@ -84,8 +85,13 @@ public class App extends Application {
     showCoordinates.setOnAction(this::toggleCoordinates);
     root.add(showCoordinates, 0, 8, 1, 1);
 
+    ToggleButton showDots = new ToggleButton("Show dots");
+    showDots.setSelected(toggleDots);
+    showDots.setOnAction(this::toggleDots);
+    root.add(showDots, 0, 9, 1, 1);
+
     var label3 = new Label("Draws in sequence BLUE, RED, YELLOW, GREEN, CYAN, MAGENTA");
-    root.add(label3, 0, 9, 2, 1);
+    root.add(label3, 0, 10, 2, 1);
 
     root.add(getCanvas(), 2, 0, 20, 20);
 
@@ -96,6 +102,10 @@ public class App extends Application {
 
   private void toggleCoordinates(ActionEvent actionEvent) {
     toggleCoordinates = !toggleCoordinates;
+  }
+
+  private void toggleDots(ActionEvent actionEvent) {
+    toggleDots = !toggleDots;
   }
 
   private Canvas getCanvas() {
@@ -197,9 +207,11 @@ public class App extends Application {
               x2 + CANVAS_MARGINX, CANVAS_HEIGHT - (y2));
           // set fill for oval
           gc.setFill(Color.BLACK);
-          gc.fillOval(x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
-              CANVAS_HEIGHT - (y2 - HALF_POINT_DIAMETER),
-              POINT_DIAMETER, POINT_DIAMETER);
+          if (toggleDots) {
+            gc.fillOval(x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
+                CANVAS_HEIGHT - (y2 - HALF_POINT_DIAMETER),
+                POINT_DIAMETER, POINT_DIAMETER);
+          }
           if (toggleCoordinates) {
             gc.fillText(coordinate.x + ", " + coordinate.y,
                 x2 + CANVAS_MARGINX - HALF_POINT_DIAMETER,
