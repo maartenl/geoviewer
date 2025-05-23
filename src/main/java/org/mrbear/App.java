@@ -1,4 +1,4 @@
-package com.mrbear;
+package org.mrbear;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;

@@ -1,4 +1,4 @@
-package com.mrbear;
+package org.mrbear;
 
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;

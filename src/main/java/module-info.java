@@ -1,5 +1,5 @@
-module org.example {
+module org.mrbear {
     requires javafx.controls;
-  requires org.locationtech.jts;
-  exports com.mrbear;
+    requires org.locationtech.jts;
+    exports org.mrbear;
 }
